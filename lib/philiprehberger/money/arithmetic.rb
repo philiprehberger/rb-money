@@ -28,8 +28,8 @@ module Philiprehberger
       #
       # @param numeric [Numeric] the multiplier
       # @return [Money] a new Money with the product
-      def *(numeric)
-        result = (BigDecimal(cents.to_s) * BigDecimal(numeric.to_s)).round(0, BigDecimal::ROUND_HALF_EVEN).to_i
+      def *(other)
+        result = (BigDecimal(cents.to_s) * BigDecimal(other.to_s)).round(0, BigDecimal::ROUND_HALF_EVEN).to_i
         self.class.new(result, currency.code)
       end
 
@@ -37,8 +37,8 @@ module Philiprehberger
       #
       # @param numeric [Numeric] the divisor
       # @return [Money] a new Money with the quotient
-      def /(numeric)
-        result = (BigDecimal(cents.to_s) / BigDecimal(numeric.to_s)).round(0, BigDecimal::ROUND_HALF_EVEN).to_i
+      def /(other)
+        result = (BigDecimal(cents.to_s) / BigDecimal(other.to_s)).round(0, BigDecimal::ROUND_HALF_EVEN).to_i
         self.class.new(result, currency.code)
       end
 
