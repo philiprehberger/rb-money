@@ -24,22 +24,24 @@ module Philiprehberger
         self.class.new(cents - other.cents, currency.code)
       end
 
-      # Multiply by a numeric value using banker's rounding
+      # Multiply by a numeric value using the stored rounding mode
       #
       # @param numeric [Numeric] the multiplier
       # @return [Money] a new Money with the product
       def *(other)
-        result = (BigDecimal(cents.to_s) * BigDecimal(other.to_s)).round(0, BigDecimal::ROUND_HALF_EVEN).to_i
-        self.class.new(result, currency.code)
+        mode = ROUNDING_MODES.fetch(rounding_mode, BigDecimal::ROUND_HALF_EVEN)
+        result = (BigDecimal(cents.to_s) * BigDecimal(other.to_s)).round(0, mode).to_i
+        self.class.new(result, currency.code, rounding: rounding_mode)
       end
 
-      # Divide by a numeric value using banker's rounding
+      # Divide by a numeric value using the stored rounding mode
       #
       # @param numeric [Numeric] the divisor
       # @return [Money] a new Money with the quotient
       def /(other)
-        result = (BigDecimal(cents.to_s) / BigDecimal(other.to_s)).round(0, BigDecimal::ROUND_HALF_EVEN).to_i
-        self.class.new(result, currency.code)
+        mode = ROUNDING_MODES.fetch(rounding_mode, BigDecimal::ROUND_HALF_EVEN)
+        result = (BigDecimal(cents.to_s) / BigDecimal(other.to_s)).round(0, mode).to_i
+        self.class.new(result, currency.code, rounding: rounding_mode)
       end
 
       # Negate the amount
