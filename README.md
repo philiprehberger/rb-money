@@ -168,6 +168,48 @@ eur.cents           # => 850
 eur.currency.code   # => :eur
 ```
 
+### Exchange Rate Store
+
+```ruby
+require "philiprehberger/money"
+
+# Set up exchange rates
+Philiprehberger::Money::ExchangeRate.store.set(:USD, :EUR, 0.85)
+Philiprehberger::Money::ExchangeRate.store.set(:USD, :GBP, 0.73)
+
+# Convert using the store (no need to pass a rate)
+usd = Philiprehberger::Money.new(1000, :usd)
+eur = usd.exchange_to(:EUR)
+eur.cents  # => 850
+
+# Inverse rates are resolved automatically
+eur_amount = Philiprehberger::Money.new(850, :eur)
+back_to_usd = eur_amount.exchange_to(:USD)
+
+# Sum mixed-currency amounts into a target currency
+moneys = [
+  Philiprehberger::Money.new(1000, :usd),
+  Philiprehberger::Money.new(850, :eur)
+]
+total = Philiprehberger::Money.sum(moneys, target_currency: :USD)
+total.cents  # => 2000
+
+# Clear all rates
+Philiprehberger::Money::ExchangeRate.store.clear
+```
+
+### Rounding to Nearest Increment
+
+```ruby
+require "philiprehberger/money"
+
+price = Philiprehberger::Money.new(123, :usd)  # $1.23
+
+price.round_to_nearest(5).cents   # => 125 ($1.25)
+price.round_to_nearest(10).cents  # => 120 ($1.20)
+price.round_to_nearest(25).cents  # => 125 ($1.25)
+```
+
 ### Comparison
 
 ```ruby
@@ -190,6 +232,7 @@ a.zero? # => false
 | `.new(cents, currency_code)` | Create from integer subunits and currency code |
 | `.from_amount(amount, currency_code, rounding:)` | Create from decimal amount with configurable rounding |
 | `.parse(string, currency:)` | Parse a formatted money string into a Money object |
+| `.sum(moneys, target_currency:)` | Sum a collection of Money objects into a target currency |
 
 ### `Money` instance methods
 
@@ -214,12 +257,25 @@ a.zero? # => false
 | `#format(symbol:, code:, thousands:)` | Format as string with options |
 | `#to_s` | Format with default options |
 | `#convert_to(target_code, rate:)` | Convert to another currency |
+| `#exchange_to(target_code)` | Convert using the ExchangeRate store |
+| `#round_to_nearest(increment)` | Round to nearest N subunits |
 | `#zero?` | True if amount is zero |
 | `#positive?` | True if amount is positive |
 | `#negative?` | True if amount is negative |
 | `#<=>(other)` | Compare same-currency amounts |
 | `#eql?(other)` | Value equality check |
 | `#hash` | Hash for use as hash key |
+
+### `ExchangeRate` methods
+
+| Method | Description |
+|--------|-------------|
+| `.store` | Returns the singleton exchange rate store |
+| `.reset!` | Resets the store (clears all rates) |
+| `#set(from, to, rate)` | Set a conversion rate between two currencies |
+| `#get(from, to)` | Get a conversion rate (resolves inverse automatically) |
+| `#clear` | Remove all stored rates |
+| `#rates_count` | Number of stored rates |
 
 ### `Currency` class methods
 
