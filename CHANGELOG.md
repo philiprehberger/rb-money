@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-04-10
+
+### Added
+- `Money#to_h` for hash serialization (cents, amount, currency, formatted)
+- `Money#deconstruct_keys` for Ruby 3.x `case/in` pattern matching
+
 ## [0.3.1] - 2026-03-31
 
 ### Changed
