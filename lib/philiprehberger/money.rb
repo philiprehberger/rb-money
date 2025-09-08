@@ -196,6 +196,36 @@ module Philiprehberger
       convert_to(target_code, rate: rate)
     end
 
+    # Calculate tax breakdown from the current amount as net
+    #
+    # @param rate [Numeric] tax rate as a decimal (e.g. 0.2 for 20%)
+    # @return [Hash] with :net, :tax, and :gross Money objects
+    def tax_breakdown(rate)
+      raise ArgumentError, 'Tax rate must be non-negative' unless rate.is_a?(Numeric) && rate >= 0
+
+      tax_cents = (BigDecimal(cents.to_s) * BigDecimal(rate.to_s))
+                  .round(0, BigDecimal::ROUND_HALF_EVEN).to_i
+      tax = self.class.new(tax_cents, currency.code)
+      { net: self, tax: tax, gross: self + tax }
+    end
+
+    # Constrain the money value within a minimum and maximum bound
+    #
+    # @param min [Money] lower bound (same currency)
+    # @param max [Money] upper bound (same currency)
+    # @return [Money] self if within range, min if below, max if above
+    # @raise [CurrencyMismatch] if currencies differ
+    def clamp(min, max)
+      raise CurrencyMismatch, "Cannot clamp #{currency.code.upcase} with #{min.currency.code.upcase}" unless currency.code == min.currency.code
+      raise CurrencyMismatch, "Cannot clamp #{currency.code.upcase} with #{max.currency.code.upcase}" unless currency.code == max.currency.code
+      raise ArgumentError, 'min must not be greater than max' if min > max
+
+      return min if self < min
+      return max if self > max
+
+      self
+    end
+
     # Round to the nearest N subunits
     #
     # @param increment [Integer] rounding increment (e.g. 5 for nearest 5 cents)

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-04-15
+
+### Added
+- `Money#tax_breakdown(rate)` returns a hash with net, tax, and gross Money objects
+- `Money#clamp(min, max)` constrains a money value within same-currency bounds
+
 ## [0.4.0] - 2026-04-10
 
 ### Added
