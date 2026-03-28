@@ -75,4 +75,85 @@ RSpec.describe Philiprehberger::Money::Currency do
       expect(described_class.find(:usd)).to be_frozen
     end
   end
+
+  describe '.register' do
+    after do
+      described_class.reset_custom_currencies!
+    end
+
+    it 'registers a new custom currency' do
+      described_class.register(code: 'XTS', name: 'Test Currency', symbol: 'T$', subunit_to_unit: 100)
+      currency = described_class.find(:xts)
+      expect(currency.code).to eq(:xts)
+      expect(currency.name).to eq('Test Currency')
+      expect(currency.symbol).to eq('T$')
+      expect(currency.subunit_to_unit).to eq(100)
+    end
+
+    it 'allows custom formatting options' do
+      described_class.register(
+        code: 'XYZ',
+        name: 'Custom',
+        symbol: 'X',
+        subunit_to_unit: 1000,
+        symbol_first: false,
+        decimal_separator: ',',
+        thousands_separator: '.'
+      )
+      currency = described_class.find(:xyz)
+      expect(currency.symbol_first).to be false
+      expect(currency.decimal_separator).to eq(',')
+      expect(currency.thousands_separator).to eq('.')
+      expect(currency.subunit_to_unit).to eq(1000)
+    end
+
+    it 'custom currencies work with Money operations' do
+      described_class.register(code: 'XTC', name: 'Test Coin', symbol: 'TC', subunit_to_unit: 100)
+      money = Philiprehberger::Money.from_amount(19.99, :xtc)
+      expect(money.cents).to eq(1999)
+      expect(money.format).to eq('TC19.99')
+    end
+
+    it 'raises ArgumentError for code shorter than 3 letters' do
+      expect do
+        described_class.register(code: 'AB', name: 'Bad', symbol: 'B')
+      end.to raise_error(ArgumentError, /3 or more uppercase letters/)
+    end
+
+    it 'raises ArgumentError for code with non-letter characters' do
+      expect do
+        described_class.register(code: 'X1Z', name: 'Bad', symbol: 'B')
+      end.to raise_error(ArgumentError, /3 or more uppercase letters/)
+    end
+
+    it 'raises ArgumentError for non-positive subunit_to_unit' do
+      expect do
+        described_class.register(code: 'XAA', name: 'Bad', symbol: 'B', subunit_to_unit: 0)
+      end.to raise_error(ArgumentError, /positive integer/)
+    end
+
+    it 'raises ArgumentError for negative subunit_to_unit' do
+      expect do
+        described_class.register(code: 'XAA', name: 'Bad', symbol: 'B', subunit_to_unit: -1)
+      end.to raise_error(ArgumentError, /positive integer/)
+    end
+
+    it 'raises ArgumentError when code already exists in built-in registry' do
+      expect do
+        described_class.register(code: 'USD', name: 'Duplicate', symbol: '$')
+      end.to raise_error(ArgumentError, /already registered/)
+    end
+
+    it 'raises ArgumentError when code already exists in custom registry' do
+      described_class.register(code: 'XNW', name: 'First', symbol: 'F')
+      expect do
+        described_class.register(code: 'XNW', name: 'Second', symbol: 'S')
+      end.to raise_error(ArgumentError, /already registered/)
+    end
+
+    it 'registered currency objects are frozen' do
+      described_class.register(code: 'XFZ', name: 'Frozen', symbol: 'FZ')
+      expect(described_class.find(:xfz)).to be_frozen
+    end
+  end
 end

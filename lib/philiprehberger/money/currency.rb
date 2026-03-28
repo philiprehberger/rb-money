@@ -33,9 +33,58 @@ module Philiprehberger
       def self.find(code)
         key = code.to_s.downcase.to_sym
         REGISTRY.fetch(key) do
-          raise Philiprehberger::Money::InvalidCurrency, "Unknown currency: #{code}"
+          @custom_currencies.fetch(key) do
+            raise Philiprehberger::Money::InvalidCurrency, "Unknown currency: #{code}"
+          end
         end
       end
+
+      # Register a custom currency
+      #
+      # @param code [Symbol, String] currency code (3+ uppercase letters)
+      # @param name [String] full currency name
+      # @param symbol [String] currency symbol
+      # @param subunit_to_unit [Integer] number of subunits per unit (default: 100)
+      # @param symbol_first [Boolean] whether the symbol appears before the amount
+      # @param decimal_separator [String] character separating decimals
+      # @param thousands_separator [String] character separating thousands
+      # @return [Currency]
+      # @raise [ArgumentError] if code format is invalid or already registered
+      def self.register(code:, name:, symbol:, subunit_to_unit: 100, symbol_first: true,
+                        decimal_separator: '.', thousands_separator: ',')
+        code_str = code.to_s.upcase
+        raise ArgumentError, 'Currency code must be 3 or more uppercase letters' unless code_str.match?(/\A[A-Z]{3,}\z/)
+        raise ArgumentError, 'subunit_to_unit must be a positive integer' unless subunit_to_unit.is_a?(Integer) && subunit_to_unit.positive?
+
+        key = code_str.downcase.to_sym
+        if REGISTRY.key?(key) || @custom_currencies.key?(key)
+          raise ArgumentError, "Currency already registered: #{code_str}"
+        end
+
+        currency = new(
+          code: key,
+          name: name,
+          symbol: symbol,
+          subunit_to_unit: subunit_to_unit,
+          symbol_first: symbol_first,
+          decimal_separator: decimal_separator,
+          thousands_separator: thousands_separator
+        )
+        @custom_currencies[key] = currency
+        currency
+      end
+
+      # @return [Hash] custom currencies registry
+      class << self
+        attr_reader :custom_currencies
+      end
+
+      # Reset custom currencies (useful for testing)
+      def self.reset_custom_currencies!
+        @custom_currencies = {}
+      end
+
+      @custom_currencies = {}
 
       REGISTRY = {
         usd: new(code: :usd, name: 'US Dollar', symbol: '$', subunit_to_unit: 100),
