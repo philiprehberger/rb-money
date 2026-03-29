@@ -54,8 +54,12 @@ module Philiprehberger
         end
 
         # Try matching by symbol — prefer longer symbols first to avoid
-        # matching '$' when 'R$' is present
-        all_currencies.sort_by { |c| -c.symbol.length }.each do |curr|
+        # matching '$' when 'R$' is present, then prefer common currencies
+        # when multiple share the same symbol (e.g. '$' → USD over NZD)
+        priority = %i[usd eur gbp jpy cny cad aud chf].freeze
+        all_currencies
+          .sort_by { |c| [-c.symbol.length, priority.index(c.code) || 999] }
+          .each do |curr|
           return curr if str.include?(curr.symbol)
         end
 
