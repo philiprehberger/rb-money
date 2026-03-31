@@ -8,6 +8,7 @@ require_relative 'money/arithmetic'
 require_relative 'money/formatting'
 require_relative 'money/allocation'
 require_relative 'money/parsing'
+require_relative 'money/exchange_rate'
 
 module Philiprehberger
   # Immutable money value object with integer subunit storage
@@ -67,6 +68,25 @@ module Philiprehberger
     # @raise [ParseError] if the string cannot be parsed
     def self.parse(input, currency: nil)
       Parsing.parse(input, currency: currency)
+    end
+
+    # Sum a collection of Money objects, converting to a target currency
+    #
+    # @param moneys [Array<Money>] collection of Money objects
+    # @param target_currency [Symbol, String] currency code to sum into
+    # @return [Money] total in the target currency
+    # @raise [Error] if the collection is empty
+    def self.sum(moneys, target_currency:)
+      raise Error, 'Collection must not be empty' if moneys.nil? || moneys.empty?
+
+      moneys.reduce(Money.new(0, target_currency)) do |total, money|
+        converted = if money.currency.code == target_currency.to_s.upcase.to_sym
+                      money
+                    else
+                      money.exchange_to(target_currency)
+                    end
+        total + converted
+      end
     end
 
     # The decimal amount
@@ -165,6 +185,27 @@ module Philiprehberger
       raise ArgumentError, 'Number of parts must be 1 or more' unless n.is_a?(Integer) && n >= 1
 
       allocate(Array.new(n, 1))
+    end
+
+    # Convert to another currency using the ExchangeRate store
+    #
+    # @param target_code [Symbol, String] target currency code
+    # @return [Money] new Money in the target currency
+    def exchange_to(target_code)
+      rate = ExchangeRate.store.get(currency.code, target_code)
+      convert_to(target_code, rate: rate)
+    end
+
+    # Round to the nearest N subunits
+    #
+    # @param increment [Integer] rounding increment (e.g. 5 for nearest 5 cents)
+    # @return [Money] rounded Money object
+    # @raise [Error] if increment is not a positive integer
+    def round_to_nearest(increment)
+      raise Error, 'Increment must be a positive integer' unless increment.is_a?(Integer) && increment.positive?
+
+      rounded_cents = ((cents.to_f / increment).round * increment).to_i
+      self.class.new(rounded_cents, currency.code, rounding: rounding_mode)
     end
 
     include Arithmetic

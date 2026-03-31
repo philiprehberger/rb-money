@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-03-31
+
+### Added
+- `Money::ExchangeRate` store for managing conversion rates
+- `#exchange_to(currency)` for automatic rate lookup conversion
+- `Money.sum(moneys, target_currency:)` for aggregating mixed-currency amounts
+- `#round_to_nearest(increment)` for rounding to nearest N subunits
+
 ## [0.2.0] - 2026-03-28
 
 ### Added
