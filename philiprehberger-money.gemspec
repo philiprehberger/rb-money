@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
 
   spec.summary = 'Immutable money value object with integer subunit storage and multi-currency formatting'
   spec.description = 'A lean money library that stores amounts as integer subunits (cents) to avoid ' \
-                       'floating-point errors. Supports arithmetic with banker\'s rounding, fair allocation, ' \
-                       'multi-currency formatting, and type-safe currency conversion.'
+                     'floating-point errors. Supports arithmetic with banker\'s rounding, fair allocation, ' \
+                     'multi-currency formatting, and type-safe currency conversion.'
   spec.homepage = 'https://philiprehberger.com/open-source-packages/ruby/philiprehberger-money'
   spec.license = 'MIT'
 
