@@ -166,4 +166,50 @@ RSpec.describe Philiprehberger::Money do
       expect(hash[b]).to eq('value')
     end
   end
+
+  describe '#to_h' do
+    it 'returns a hash with cents, amount, currency, and formatted' do
+      money = described_class.new(1999, :usd)
+      h = money.to_h
+      expect(h[:cents]).to eq(1999)
+      expect(h[:amount]).to eq(19.99)
+      expect(h[:currency]).to eq('USD')
+      expect(h[:formatted]).to eq('$19.99')
+    end
+
+    it 'works with zero-decimal currencies' do
+      money = described_class.new(2000, :jpy)
+      h = money.to_h
+      expect(h[:cents]).to eq(2000)
+      expect(h[:amount]).to eq(2000.0)
+      expect(h[:currency]).to eq('JPY')
+    end
+  end
+
+  describe '#deconstruct_keys' do
+    it 'supports pattern matching with specific keys' do
+      money = described_class.new(1999, :usd)
+      case money
+      in { cents: Integer => c, currency: :usd }
+        expect(c).to eq(1999)
+      else
+        raise 'pattern did not match'
+      end
+    end
+
+    it 'returns all keys when keys is nil' do
+      money = described_class.new(500, :eur)
+      h = money.deconstruct_keys(nil)
+      expect(h).to have_key(:cents)
+      expect(h).to have_key(:amount)
+      expect(h).to have_key(:currency)
+      expect(h).to have_key(:formatted)
+    end
+
+    it 'returns only requested keys' do
+      money = described_class.new(500, :usd)
+      h = money.deconstruct_keys(%i[cents currency])
+      expect(h.keys).to contain_exactly(:cents, :currency)
+    end
+  end
 end

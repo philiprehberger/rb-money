@@ -205,6 +205,23 @@ price.round_to_nearest(10).cents  # => 120 ($1.20)
 price.round_to_nearest(25).cents  # => 125 ($1.25)
 ```
 
+### Serialization
+
+```ruby
+price = Philiprehberger::Money.new(1999, :usd)
+price.to_h
+# => { cents: 1999, amount: 19.99, currency: "USD", formatted: "$19.99" }
+```
+
+### Pattern Matching
+
+```ruby
+case Philiprehberger::Money.new(1999, :usd)
+in { currency: :usd, amount: Float => amt }
+  puts "USD amount: #{amt}"
+end
+```
+
 ### Comparison
 
 ```ruby
@@ -258,6 +275,8 @@ a.zero? # => false
 | `#positive?` | True if amount is positive |
 | `#negative?` | True if amount is negative |
 | `#<=>(other)` | Compare same-currency amounts |
+| `#to_h` | Hash with cents, amount, currency, formatted |
+| `#deconstruct_keys(keys)` | Pattern matching support for `case/in` |
 | `#eql?(other)` | Value equality check |
 | `#hash` | Hash for use as hash key |
 

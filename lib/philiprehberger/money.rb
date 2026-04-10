@@ -208,6 +208,29 @@ module Philiprehberger
       self.class.new(rounded_cents, currency.code, rounding: rounding_mode)
     end
 
+    # Hash representation for serialization
+    #
+    # @return [Hash] with :cents, :amount, :currency, :formatted keys
+    def to_h
+      {
+        cents: @cents,
+        amount: amount.to_f,
+        currency: @currency.code.to_s.upcase,
+        formatted: to_s
+      }
+    end
+
+    # Pattern matching support for Ruby 3.x case/in
+    #
+    # @param keys [Array<Symbol>, nil] keys to destructure
+    # @return [Hash]
+    def deconstruct_keys(keys)
+      full = { cents: @cents, amount: amount.to_f, currency: @currency.code, formatted: to_s }
+      return full if keys.nil?
+
+      full.slice(*keys)
+    end
+
     include Arithmetic
     include Formatting
     include Allocation
