@@ -90,6 +90,32 @@ price.add_percent(20)        # => $120.00 (with 20% tax)
 price.subtract_percent(25)   # => $75.00 (25% discount)
 ```
 
+### Tax Breakdown
+
+```ruby
+require "philiprehberger/money"
+
+net = Philiprehberger::Money.new(10000, :usd)  # $100.00
+result = net.tax_breakdown(0.2)
+
+result[:net].to_s    # => "$100.00"
+result[:tax].to_s    # => "$20.00"
+result[:gross].to_s  # => "$120.00"
+```
+
+### Clamping
+
+```ruby
+require "philiprehberger/money"
+
+min   = Philiprehberger::Money.new(500, :usd)   # $5.00
+max   = Philiprehberger::Money.new(2000, :usd)  # $20.00
+
+Philiprehberger::Money.new(1000, :usd).clamp(min, max).to_s  # => "$10.00" (within range)
+Philiprehberger::Money.new(100, :usd).clamp(min, max).to_s   # => "$5.00"  (clamped to min)
+Philiprehberger::Money.new(5000, :usd).clamp(min, max).to_s  # => "$20.00" (clamped to max)
+```
+
 ### Allocation
 
 ```ruby
@@ -264,6 +290,8 @@ a.zero? # => false
 | `#percent(n)` | Return n% of the amount |
 | `#add_percent(n)` | Return money + n% |
 | `#subtract_percent(n)` | Return money - n% |
+| `#tax_breakdown(rate)` | Return hash with net, tax, and gross Money objects |
+| `#clamp(min, max)` | Constrain value within same-currency bounds |
 | `#allocate(ratios)` | Split by ratios using largest remainder method |
 | `#split(n)` | Split equally among n parts |
 | `#format(symbol:, code:, thousands:)` | Format as string with options |
