@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Philiprehberger::Money do
   describe '#tax_breakdown' do
-    let(:net) { described_class.new(10000, :usd) }
+    let(:net) { described_class.new(10_000, :usd) }
 
     it 'returns a hash with net, tax, and gross keys' do
       result = net.tax_breakdown(0.2)
@@ -15,21 +15,21 @@ RSpec.describe Philiprehberger::Money do
 
     it 'calculates 20% tax correctly' do
       result = net.tax_breakdown(0.2)
-      expect(result[:net].cents).to eq(10000)
+      expect(result[:net].cents).to eq(10_000)
       expect(result[:tax].cents).to eq(2000)
-      expect(result[:gross].cents).to eq(12000)
+      expect(result[:gross].cents).to eq(12_000)
     end
 
     it 'calculates 10% tax correctly' do
       result = net.tax_breakdown(0.1)
       expect(result[:tax].cents).to eq(1000)
-      expect(result[:gross].cents).to eq(11000)
+      expect(result[:gross].cents).to eq(11_000)
     end
 
     it 'calculates 0% tax correctly' do
       result = net.tax_breakdown(0)
       expect(result[:tax].cents).to eq(0)
-      expect(result[:gross].cents).to eq(10000)
+      expect(result[:gross].cents).to eq(10_000)
     end
 
     it 'uses banker rounding for fractional tax amounts' do

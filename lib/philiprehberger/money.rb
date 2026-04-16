@@ -216,8 +216,12 @@ module Philiprehberger
     # @return [Money] self if within range, min if below, max if above
     # @raise [CurrencyMismatch] if currencies differ
     def clamp(min, max)
-      raise CurrencyMismatch, "Cannot clamp #{currency.code.upcase} with #{min.currency.code.upcase}" unless currency.code == min.currency.code
-      raise CurrencyMismatch, "Cannot clamp #{currency.code.upcase} with #{max.currency.code.upcase}" unless currency.code == max.currency.code
+      unless currency.code == min.currency.code
+        raise CurrencyMismatch, "Cannot clamp #{currency.code.upcase} with #{min.currency.code.upcase}"
+      end
+      unless currency.code == max.currency.code
+        raise CurrencyMismatch, "Cannot clamp #{currency.code.upcase} with #{max.currency.code.upcase}"
+      end
       raise ArgumentError, 'min must not be greater than max' if min > max
 
       return min if self < min
