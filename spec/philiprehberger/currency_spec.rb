@@ -76,6 +76,24 @@ RSpec.describe Philiprehberger::Money::Currency do
     end
   end
 
+  describe '#exponent' do
+    it 'returns 2 for USD' do
+      expect(described_class.find(:usd).exponent).to eq(2)
+    end
+
+    it 'returns 2 for EUR' do
+      expect(described_class.find(:eur).exponent).to eq(2)
+    end
+
+    it 'returns 0 for JPY (zero-decimal currency)' do
+      expect(described_class.find(:jpy).exponent).to eq(0)
+    end
+
+    it 'returns 0 for KRW (zero-decimal currency)' do
+      expect(described_class.find(:krw).exponent).to eq(0)
+    end
+  end
+
   describe '.register' do
     after do
       described_class.reset_custom_currencies!

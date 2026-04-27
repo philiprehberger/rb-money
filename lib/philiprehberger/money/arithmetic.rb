@@ -58,6 +58,21 @@ module Philiprehberger
         self.class.new(cents.abs, currency.code)
       end
 
+      # Return a new Money with the value rounded to the given decimal precision
+      #
+      # When +precision+ is +nil+, the currency's exponent is used (a no-op for
+      # standard same-precision storage). Rounding less precision than the
+      # currency exponent reduces the number of significant decimals (e.g.
+      # USD 1.234 rounded to precision 1 becomes 1.2, i.e. $1.20).
+      #
+      # @param precision [Integer, nil] number of decimal places to round to
+      # @return [Money] a new Money in the same currency
+      def round(precision = nil)
+        precision = currency.exponent if precision.nil?
+        rounded_amount = to_f.round(precision)
+        self.class.from_amount(rounded_amount, currency.code, rounding: rounding_mode)
+      end
+
       private
 
       def assert_same_currency!(other)

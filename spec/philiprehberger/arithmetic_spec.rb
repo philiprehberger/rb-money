@@ -106,4 +106,46 @@ RSpec.describe Philiprehberger::Money::Arithmetic do
       expect(negative.abs.cents).to eq(1000)
     end
   end
+
+  describe '#round' do
+    let(:money) { Philiprehberger::Money.new(1234, :usd) } # $12.34
+
+    it 'returns a new Money instance (does not mutate)' do
+      result = money.round(0)
+      expect(result).not_to equal(money)
+      expect(result).to be_a(Philiprehberger::Money)
+      expect(money.cents).to eq(1234)
+    end
+
+    it 'keeps the original currency' do
+      expect(money.round(0).currency.code).to eq(:usd)
+    end
+
+    it 'rounds to whole units with precision 0' do
+      # $12.34 -> $12.00
+      expect(money.round(0).cents).to eq(1200)
+    end
+
+    it 'rounds to nearest tenth with precision 1' do
+      # $12.34 -> $12.30
+      expect(money.round(1).cents).to eq(1230)
+    end
+
+    it 'rounds USD 1.234 to precision 1 -> $1.20' do
+      # 1.234 rounded to 1 decimal -> 1.2 -> 120 cents
+      m = Philiprehberger::Money.from_amount(1.234, :usd)
+      expect(m.round(1).cents).to eq(120)
+    end
+
+    it 'defaults to currency exponent when precision is nil (no-op for matching precision)' do
+      result = money.round
+      expect(result.cents).to eq(money.cents)
+      expect(result).not_to equal(money)
+    end
+
+    it 'rounds JPY (exponent 0) with default precision as a no-op' do
+      jpy = Philiprehberger::Money.new(2000, :jpy)
+      expect(jpy.round.cents).to eq(2000)
+    end
+  end
 end

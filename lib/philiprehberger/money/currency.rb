@@ -6,6 +6,15 @@ module Philiprehberger
     class Currency
       attr_reader :code, :name, :symbol, :subunit_to_unit, :symbol_first, :decimal_separator, :thousands_separator
 
+      # The number of decimal places this currency uses (e.g. 2 for USD, 0 for JPY)
+      #
+      # Derived from +subunit_to_unit+: log10(100) => 2, log10(1) => 0.
+      #
+      # @return [Integer]
+      def exponent
+        Math.log10(@subunit_to_unit).round
+      end
+
       # @param code [Symbol] ISO 4217 currency code (lowercase)
       # @param name [String] full currency name
       # @param symbol [String] currency symbol

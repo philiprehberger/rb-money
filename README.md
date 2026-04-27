@@ -231,6 +231,24 @@ price.round_to_nearest(10).cents  # => 120 ($1.20)
 price.round_to_nearest(25).cents  # => 125 ($1.25)
 ```
 
+### Rounding
+
+```ruby
+require "philiprehberger/money"
+
+# JPY uses 0 decimal places (exponent 0)
+jpy = Philiprehberger::Money.new(2000, :jpy)
+jpy.currency.exponent  # => 0
+jpy.round.cents        # => 2000 (no-op at default precision)
+
+# USD uses 2 decimal places (exponent 2)
+usd = Philiprehberger::Money.from_amount(1.234, :usd)
+usd.currency.exponent  # => 2
+usd.round(0).cents     # => 100  ($1.00, rounded to whole units)
+usd.round(1).cents     # => 120  ($1.20, rounded to nearest tenth)
+usd.round.cents        # => usd.cents (default precision = currency exponent)
+```
+
 ### Serialization
 
 ```ruby
@@ -299,6 +317,7 @@ a.zero? # => false
 | `#convert_to(target_code, rate:)` | Convert to another currency |
 | `#exchange_to(target_code)` | Convert using the ExchangeRate store |
 | `#round_to_nearest(increment)` | Round to nearest N subunits |
+| `#round(precision = nil)` | Round to N decimal places (defaults to currency exponent) |
 | `#zero?` | True if amount is zero |
 | `#positive?` | True if amount is positive |
 | `#negative?` | True if amount is negative |
@@ -325,6 +344,19 @@ a.zero? # => false
 |--------|-------------|
 | `.find(code)` | Look up a currency by code |
 | `.register(code:, name:, symbol:, ...)` | Register a custom currency |
+
+### `Currency` instance methods
+
+| Method | Description |
+|--------|-------------|
+| `#code` | ISO 4217 currency code (lowercase symbol, e.g. `:usd`) |
+| `#name` | Full currency name |
+| `#symbol` | Currency symbol |
+| `#subunit_to_unit` | Number of subunits per unit (100 for cents, 1 for zero-decimal) |
+| `#exponent` | Number of decimal places for the currency (e.g. 2 for USD, 0 for JPY) |
+| `#symbol_first` | Whether the symbol appears before the amount |
+| `#decimal_separator` | Character separating decimals |
+| `#thousands_separator` | Character separating thousands |
 
 ## Development
 

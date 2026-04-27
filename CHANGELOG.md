@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-04-26
+
+### Added
+- `Money#round(precision = nil)` — return a new `Money` rounded to the given decimal precision (defaults to currency exponent)
+- `Currency#exponent` — public accessor for currency decimal precision
+
 ## [0.5.0] - 2026-04-15
 
 ### Added
