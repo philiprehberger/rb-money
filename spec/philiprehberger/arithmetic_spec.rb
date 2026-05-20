@@ -107,6 +107,36 @@ RSpec.describe Philiprehberger::Money::Arithmetic do
     end
   end
 
+  describe '#recurring' do
+    it 'totals the amount over N applications' do
+      monthly = Philiprehberger::Money.new(1999, :usd) # $19.99
+      annual = monthly.recurring(12)
+      expect(annual.cents).to eq(23_988)
+      expect(annual.currency.code).to eq(:usd)
+    end
+
+    it 'returns zero for times: 0' do
+      expect(ten_usd.recurring(0).cents).to eq(0)
+    end
+
+    it 'preserves the currency' do
+      expect(ten_eur.recurring(3).currency.code).to eq(:eur)
+    end
+
+    it 'returns an exact result (no rounding needed for integer multiplication)' do
+      money = Philiprehberger::Money.new(333, :usd)
+      expect(money.recurring(7).cents).to eq(2331)
+    end
+
+    it 'rejects non-Integer times' do
+      expect { ten_usd.recurring(1.5) }.to raise_error(ArgumentError, /Integer/)
+    end
+
+    it 'rejects negative times' do
+      expect { ten_usd.recurring(-1) }.to raise_error(ArgumentError, /non-negative/)
+    end
+  end
+
   describe '#round' do
     let(:money) { Philiprehberger::Money.new(1234, :usd) } # $12.34
 

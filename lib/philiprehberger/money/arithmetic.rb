@@ -58,6 +58,23 @@ module Philiprehberger
         self.class.new(cents.abs, currency.code)
       end
 
+      # Return the total cost of this amount applied `times` consecutive times.
+      # Functionally equivalent to multiplying by `times`, with two differences
+      # that make it safer for billing flows:
+      # - it requires a non-negative integer (callers cannot accidentally
+      #   request a fractional or negative number of charges), and
+      # - it documents intent at the call site (e.g. monthly fee × 12).
+      #
+      # @param times [Integer] number of times the amount is applied (>= 0)
+      # @return [Money] a new Money totalling this amount × `times`
+      # @raise [ArgumentError] if `times` is not a non-negative Integer
+      def recurring(times)
+        raise ArgumentError, "times must be an Integer (got #{times.class})" unless times.is_a?(Integer)
+        raise ArgumentError, "times must be non-negative (got #{times})" if times.negative?
+
+        self.class.new(cents * times, currency.code, rounding: rounding_mode)
+      end
+
       # Return a new Money with the value rounded to the given decimal precision
       #
       # When +precision+ is +nil+, the currency's exponent is used (a no-op for

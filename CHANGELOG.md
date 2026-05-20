@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-05-20
+
+### Added
+- `Money#recurring(times)` — total cost when the amount is applied `times` consecutive times (e.g. monthly fee × 12); rejects non-Integer or negative inputs for safer billing arithmetic
+- Card image reference in the README for registry-side rendering
+
 ## [0.6.0] - 2026-04-26
 
 ### Added

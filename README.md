@@ -4,6 +4,8 @@
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-money.svg)](https://rubygems.org/gems/philiprehberger-money)
 [![Last updated](https://img.shields.io/github/last-commit/philiprehberger/rb-money)](https://github.com/philiprehberger/rb-money/commits/main)
 
+![philiprehberger-money](https://raw.githubusercontent.com/philiprehberger/rb-money/main/package-card.webp)
+
 Immutable money value object with integer subunit storage and multi-currency formatting
 
 ## Requirements
@@ -48,6 +50,10 @@ mult = a * 2       # => $20.00
 quot = a / 3       # => $3.33 (banker's rounding)
 neg  = -a          # => -$10.00
 abs  = neg.abs     # => $10.00
+
+# Recurring charges — clearer intent than `* n` and guarded for integer counts
+monthly = Philiprehberger::Money.new(1999, :usd)
+annual  = monthly.recurring(12)  # => $239.88
 ```
 
 ### Formatting
@@ -305,6 +311,7 @@ a.zero? # => false
 | `#/(numeric)` | Divide by a number (uses stored rounding mode) |
 | `#-@` | Negate the amount |
 | `#abs` | Absolute value |
+| `#recurring(times)` | Total cost when applied `times` consecutive times (Integer >= 0); intent-clear alias around `* times` |
 | `#percent(n)` | Return n% of the amount |
 | `#add_percent(n)` | Return money + n% |
 | `#subtract_percent(n)` | Return money - n% |
